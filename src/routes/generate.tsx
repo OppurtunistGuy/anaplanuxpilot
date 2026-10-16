@@ -9,7 +9,8 @@ import { SectionHeading } from "@/components/layout/SectionHeading";
 import { saveSubmission, type GenerateMode } from "@/lib/submission-storage";
 import { buildPrototypePrompt, buildRecommendationsPrompt } from "@/lib/prompts";
 import { streamImage } from "@/lib/stream-image";
-import { ApiKeyField, useStoredApiKey } from "@/components/generate/ApiKeyField";
+import { ApiKeyField, useSessionApiKey } from "@/components/generate/ApiKeyField";
+import { AuthGate } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/generate")({
   head: () => ({
@@ -28,7 +29,7 @@ export const Route = createFileRoute("/generate")({
     ],
     links: [{ rel: "canonical", href: "/generate" }],
   }),
-  component: GeneratePage,
+  component: () => <AuthGate><GeneratePage /></AuthGate>,
 });
 
 const BUSINESS_FUNCTIONS = [
@@ -78,7 +79,7 @@ function GeneratePage() {
   const [progressImg, setProgressImg] = useState<string | null>(null);
   const [progressFinal, setProgressFinal] = useState(false);
   const [statusText, setStatusText] = useState<string>("");
-  const [apiKey, setApiKey] = useStoredApiKey();
+  const [apiKey, setApiKey] = useSessionApiKey();
 
   async function onScreenshotChange(file: File | null) {
     setScreenshot(file);
@@ -140,10 +141,10 @@ function GeneratePage() {
       });
 
       let finalImage = "";
-      const userKey = apiKey.trim() || undefined;
+      const userKey = apiKey.key.trim() || undefined;
       const imagePromise = streamImage(
         "/api/generate-prototype",
-        { prompt: prototypePrompt, apiKey: userKey },
+        { prompt: prototypePrompt, apiKey: userKey, provider: apiKey.provider },
         (dataUrl, isFinal) => {
           setProgressImg(dataUrl);
           setProgressFinal(isFinal);
@@ -153,8 +154,9 @@ function GeneratePage() {
 
       const recsPromise = fetch("/api/generate-recommendations", {
         method: "POST",
+        credentials: "same-origin",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: recsPrompt, screenshotDataUrl: shotDataUrl, apiKey: userKey }),
+        body: JSON.stringify({ prompt: recsPrompt, screenshotDataUrl: shotDataUrl, apiKey: userKey, provider: apiKey.provider }),
       }).then(async (r) => {
         if (!r.ok) throw new Error(`Recommendations failed (${r.status})`);
         return (await r.json()) as {

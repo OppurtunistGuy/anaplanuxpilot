@@ -9,6 +9,7 @@ export async function streamImage(
 ): Promise<void> {
   const res = await fetch(endpoint, {
     method: "POST",
+    credentials: "same-origin",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(payload),
     signal,

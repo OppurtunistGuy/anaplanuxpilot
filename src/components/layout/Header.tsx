@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { useAuth } from "@/lib/auth-client";
 
 const navItems = [
   { to: "/", label: "Home" },
@@ -6,6 +7,7 @@ const navItems = [
 ] as const;
 
 export function Header() {
+  const auth = useAuth();
   return (
     <header className="border-b border-border bg-background">
       <div className="mx-auto flex h-14 max-w-7xl items-center justify-between px-6">
@@ -27,6 +29,11 @@ export function Header() {
                 </Link>
               </li>
             ))}
+            {auth.authenticated ? (
+              <li><button onClick={() => void auth.signOut()} className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Sign out</button></li>
+            ) : (
+              <li><Link to="/sign-in" className="rounded-md px-3 py-1.5 text-sm text-muted-foreground hover:text-foreground">Sign in</Link></li>
+            )}
           </ul>
         </nav>
       </div>

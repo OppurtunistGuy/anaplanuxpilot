@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireTester } from "@/lib/auth-server";
 
 type Provider = "openai" | "gemini" | "grok";
 
@@ -16,17 +17,17 @@ const sse = (events: Array<Record<string, unknown>>) =>
 // Gemini image generation (non-streaming): returns b64 of first inline image.
 async function geminiImage(prompt: string, key: string): Promise<Response> {
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent?key=${encodeURIComponent(key)}`,
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: { responseModalities: ["IMAGE"] },
       }),
     },
   );
-  if (!res.ok) return new Response(await res.text().catch(() => "Gemini error"), { status: res.status });
+  if (!res.ok) return Response.json({ error: "Image provider request failed." }, { status: res.status >= 500 ? 502 : res.status });
   const json = (await res.json()) as {
     candidates?: Array<{ content?: { parts?: Array<{ inlineData?: { data?: string } }> } }>;
   };
@@ -42,7 +43,7 @@ async function grokImage(prompt: string, key: string): Promise<Response> {
     headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
     body: JSON.stringify({ model: "grok-2-image-1212", prompt, n: 1, response_format: "b64_json" }),
   });
-  if (!res.ok) return new Response(await res.text().catch(() => "Grok error"), { status: res.status });
+  if (!res.ok) return Response.json({ error: "Image provider request failed." }, { status: res.status >= 500 ? 502 : res.status });
   const json = (await res.json()) as { data?: Array<{ b64_json?: string }> };
   const b64 = json.data?.[0]?.b64_json;
   if (!b64) return new Response("Grok returned no image", { status: 502 });
@@ -53,14 +54,21 @@ export const Route = createFileRoute("/api/generate-prototype")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const access = await requireTester(request);
+        if (access instanceof Response) return access;
+        const length = Number(request.headers.get("content-length") ?? 0);
+        if (length > 200_000) return Response.json({ error: "Request is too large." }, { status: 413 });
         let body: ReqBody;
         try {
-          body = (await request.json()) as ReqBody;
+          const raw = await request.text();
+          if (new TextEncoder().encode(raw).byteLength > 200_000) return Response.json({ error: "Request is too large." }, { status: 413 });
+          body = JSON.parse(raw) as ReqBody;
         } catch {
           return new Response("Invalid JSON", { status: 400 });
         }
         const prompt = (body.prompt ?? "").toString().slice(0, 8000);
         if (!prompt.trim()) return new Response("Missing prompt", { status: 400 });
+        if (typeof body.apiKey === "string" && body.apiKey.length > 4096) return Response.json({ error: "Invalid provider key." }, { status: 400 });
 
         const userKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
         const provider: Provider | null = userKey
@@ -98,8 +106,7 @@ export const Route = createFileRoute("/api/generate-prototype")({
         );
 
         if (!upstream.ok || !upstream.body) {
-          const text = await upstream.text().catch(() => "");
-          return new Response(text || "Upstream error", { status: upstream.status });
+          return Response.json({ error: "Image provider request failed." }, { status: upstream.status >= 500 ? 502 : upstream.status });
         }
         return new Response(upstream.body, {
           headers: {

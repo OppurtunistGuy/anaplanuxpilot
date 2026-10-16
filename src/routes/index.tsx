@@ -48,7 +48,7 @@ function HomePage() {
                 </Link>
               </Button>
               <span className="text-xs text-muted-foreground">
-                No account. No setup. Results in under a minute.
+                Invite-only preview. Sign up with an approved email.
               </span>
             </div>
           </div>

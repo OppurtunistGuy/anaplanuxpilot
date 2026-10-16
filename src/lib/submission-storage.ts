@@ -50,34 +50,16 @@ export interface StoredSubmission {
   generatedAt: string;
 }
 
-const KEY = "anaplan-ux-copilot:last";
+let lastSubmission: StoredSubmission | null = null;
 
 export function saveSubmission(s: StoredSubmission) {
-  if (typeof window === "undefined") return;
-  try {
-    window.localStorage.setItem(KEY, JSON.stringify(s));
-  } catch {
-    const slim: StoredSubmission = { ...s, screenshotDataUrl: null };
-    try {
-      window.localStorage.setItem(KEY, JSON.stringify(slim));
-    } catch {
-      // give up silently
-    }
-  }
+  if (typeof window !== "undefined") lastSubmission = s;
 }
 
 export function loadSubmission(): StoredSubmission | null {
-  if (typeof window === "undefined") return null;
-  const raw = window.localStorage.getItem(KEY);
-  if (!raw) return null;
-  try {
-    return JSON.parse(raw) as StoredSubmission;
-  } catch {
-    return null;
-  }
+  return typeof window === "undefined" ? null : lastSubmission;
 }
 
 export function clearSubmission() {
-  if (typeof window === "undefined") return;
-  window.localStorage.removeItem(KEY);
+  lastSubmission = null;
 }

@@ -12,8 +12,18 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as GenerateRouteImport } from './routes/generate'
 import { Route as ResultsRouteImport } from './routes/results'
+import { Route as SignInRouteImport } from './routes/sign-in'
+import { Route as SignUpRouteImport } from './routes/sign-up'
 import { Route as ApiGeneratePrototypeRouteImport } from './routes/api/generate-prototype'
 import { Route as ApiGenerateRecommendationsRouteImport } from './routes/api/generate-recommendations'
+import { Route as AuthConfirmedRouteImport } from './routes/auth/confirmed'
+import { Route as ApiAuthClaimTesterRouteImport } from './routes/api/auth/claim-tester'
+import { Route as ApiAuthExchangeRouteImport } from './routes/api/auth/exchange'
+import { Route as ApiAuthSessionRouteImport } from './routes/api/auth/session'
+import { Route as ApiAuthSigninRouteImport } from './routes/api/auth/signin'
+import { Route as ApiAuthSignoutRouteImport } from './routes/api/auth/signout'
+import { Route as ApiAuthSignupRouteImport } from './routes/api/auth/signup'
+import { Route as ApiAuthVerifyRouteImport } from './routes/api/auth/verify'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -30,6 +40,16 @@ const ResultsRoute = ResultsRouteImport.update({
   path: '/results',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SignInRoute = SignInRouteImport.update({
+  id: '/sign-in',
+  path: '/sign-in',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignUpRoute = SignUpRouteImport.update({
+  id: '/sign-up',
+  path: '/sign-up',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ApiGeneratePrototypeRoute = ApiGeneratePrototypeRouteImport.update({
   id: '/api/generate-prototype',
   path: '/api/generate-prototype',
@@ -41,28 +61,98 @@ const ApiGenerateRecommendationsRoute =
     path: '/api/generate-recommendations',
     getParentRoute: () => rootRouteImport,
   } as any)
+const AuthConfirmedRoute = AuthConfirmedRouteImport.update({
+  id: '/auth/confirmed',
+  path: '/auth/confirmed',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthClaimTesterRoute = ApiAuthClaimTesterRouteImport.update({
+  id: '/api/auth/claim-tester',
+  path: '/api/auth/claim-tester',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthExchangeRoute = ApiAuthExchangeRouteImport.update({
+  id: '/api/auth/exchange',
+  path: '/api/auth/exchange',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSessionRoute = ApiAuthSessionRouteImport.update({
+  id: '/api/auth/session',
+  path: '/api/auth/session',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSigninRoute = ApiAuthSigninRouteImport.update({
+  id: '/api/auth/signin',
+  path: '/api/auth/signin',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignoutRoute = ApiAuthSignoutRouteImport.update({
+  id: '/api/auth/signout',
+  path: '/api/auth/signout',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthSignupRoute = ApiAuthSignupRouteImport.update({
+  id: '/api/auth/signup',
+  path: '/api/auth/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAuthVerifyRoute = ApiAuthVerifyRouteImport.update({
+  id: '/api/auth/verify',
+  path: '/api/auth/verify',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/generate': typeof GenerateRoute
   '/results': typeof ResultsRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/api/generate-prototype': typeof ApiGeneratePrototypeRoute
   '/api/generate-recommendations': typeof ApiGenerateRecommendationsRoute
+  '/auth/confirmed': typeof AuthConfirmedRoute
+  '/api/auth/claim-tester': typeof ApiAuthClaimTesterRoute
+  '/api/auth/exchange': typeof ApiAuthExchangeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/signin': typeof ApiAuthSigninRoute
+  '/api/auth/signout': typeof ApiAuthSignoutRoute
+  '/api/auth/signup': typeof ApiAuthSignupRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/generate': typeof GenerateRoute
   '/results': typeof ResultsRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/api/generate-prototype': typeof ApiGeneratePrototypeRoute
   '/api/generate-recommendations': typeof ApiGenerateRecommendationsRoute
+  '/auth/confirmed': typeof AuthConfirmedRoute
+  '/api/auth/claim-tester': typeof ApiAuthClaimTesterRoute
+  '/api/auth/exchange': typeof ApiAuthExchangeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/signin': typeof ApiAuthSigninRoute
+  '/api/auth/signout': typeof ApiAuthSignoutRoute
+  '/api/auth/signup': typeof ApiAuthSignupRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/generate': typeof GenerateRoute
   '/results': typeof ResultsRoute
+  '/sign-in': typeof SignInRoute
+  '/sign-up': typeof SignUpRoute
   '/api/generate-prototype': typeof ApiGeneratePrototypeRoute
   '/api/generate-recommendations': typeof ApiGenerateRecommendationsRoute
+  '/auth/confirmed': typeof AuthConfirmedRoute
+  '/api/auth/claim-tester': typeof ApiAuthClaimTesterRoute
+  '/api/auth/exchange': typeof ApiAuthExchangeRoute
+  '/api/auth/session': typeof ApiAuthSessionRoute
+  '/api/auth/signin': typeof ApiAuthSigninRoute
+  '/api/auth/signout': typeof ApiAuthSignoutRoute
+  '/api/auth/signup': typeof ApiAuthSignupRoute
+  '/api/auth/verify': typeof ApiAuthVerifyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -70,30 +160,70 @@ export interface FileRouteTypes {
     | '/'
     | '/generate'
     | '/results'
+    | '/sign-in'
+    | '/sign-up'
     | '/api/generate-prototype'
     | '/api/generate-recommendations'
+    | '/auth/confirmed'
+    | '/api/auth/claim-tester'
+    | '/api/auth/exchange'
+    | '/api/auth/session'
+    | '/api/auth/signin'
+    | '/api/auth/signout'
+    | '/api/auth/signup'
+    | '/api/auth/verify'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/generate'
     | '/results'
+    | '/sign-in'
+    | '/sign-up'
     | '/api/generate-prototype'
     | '/api/generate-recommendations'
+    | '/auth/confirmed'
+    | '/api/auth/claim-tester'
+    | '/api/auth/exchange'
+    | '/api/auth/session'
+    | '/api/auth/signin'
+    | '/api/auth/signout'
+    | '/api/auth/signup'
+    | '/api/auth/verify'
   id:
     | '__root__'
     | '/'
     | '/generate'
     | '/results'
+    | '/sign-in'
+    | '/sign-up'
     | '/api/generate-prototype'
     | '/api/generate-recommendations'
+    | '/auth/confirmed'
+    | '/api/auth/claim-tester'
+    | '/api/auth/exchange'
+    | '/api/auth/session'
+    | '/api/auth/signin'
+    | '/api/auth/signout'
+    | '/api/auth/signup'
+    | '/api/auth/verify'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   GenerateRoute: typeof GenerateRoute
   ResultsRoute: typeof ResultsRoute
+  SignInRoute: typeof SignInRoute
+  SignUpRoute: typeof SignUpRoute
   ApiGeneratePrototypeRoute: typeof ApiGeneratePrototypeRoute
   ApiGenerateRecommendationsRoute: typeof ApiGenerateRecommendationsRoute
+  AuthConfirmedRoute: typeof AuthConfirmedRoute
+  ApiAuthClaimTesterRoute: typeof ApiAuthClaimTesterRoute
+  ApiAuthExchangeRoute: typeof ApiAuthExchangeRoute
+  ApiAuthSessionRoute: typeof ApiAuthSessionRoute
+  ApiAuthSigninRoute: typeof ApiAuthSigninRoute
+  ApiAuthSignoutRoute: typeof ApiAuthSignoutRoute
+  ApiAuthSignupRoute: typeof ApiAuthSignupRoute
+  ApiAuthVerifyRoute: typeof ApiAuthVerifyRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -119,6 +249,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ResultsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sign-in': {
+      id: '/sign-in'
+      path: '/sign-in'
+      fullPath: '/sign-in'
+      preLoaderRoute: typeof SignInRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sign-up': {
+      id: '/sign-up'
+      path: '/sign-up'
+      fullPath: '/sign-up'
+      preLoaderRoute: typeof SignUpRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/api/generate-prototype': {
       id: '/api/generate-prototype'
       path: '/api/generate-prototype'
@@ -133,6 +277,62 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ApiGenerateRecommendationsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/auth/confirmed': {
+      id: '/auth/confirmed'
+      path: '/auth/confirmed'
+      fullPath: '/auth/confirmed'
+      preLoaderRoute: typeof AuthConfirmedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/claim-tester': {
+      id: '/api/auth/claim-tester'
+      path: '/api/auth/claim-tester'
+      fullPath: '/api/auth/claim-tester'
+      preLoaderRoute: typeof ApiAuthClaimTesterRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/exchange': {
+      id: '/api/auth/exchange'
+      path: '/api/auth/exchange'
+      fullPath: '/api/auth/exchange'
+      preLoaderRoute: typeof ApiAuthExchangeRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/session': {
+      id: '/api/auth/session'
+      path: '/api/auth/session'
+      fullPath: '/api/auth/session'
+      preLoaderRoute: typeof ApiAuthSessionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/signin': {
+      id: '/api/auth/signin'
+      path: '/api/auth/signin'
+      fullPath: '/api/auth/signin'
+      preLoaderRoute: typeof ApiAuthSigninRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/signout': {
+      id: '/api/auth/signout'
+      path: '/api/auth/signout'
+      fullPath: '/api/auth/signout'
+      preLoaderRoute: typeof ApiAuthSignoutRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/signup': {
+      id: '/api/auth/signup'
+      path: '/api/auth/signup'
+      fullPath: '/api/auth/signup'
+      preLoaderRoute: typeof ApiAuthSignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/auth/verify': {
+      id: '/api/auth/verify'
+      path: '/api/auth/verify'
+      fullPath: '/api/auth/verify'
+      preLoaderRoute: typeof ApiAuthVerifyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -140,8 +340,18 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   GenerateRoute: GenerateRoute,
   ResultsRoute: ResultsRoute,
+  SignInRoute: SignInRoute,
+  SignUpRoute: SignUpRoute,
   ApiGeneratePrototypeRoute: ApiGeneratePrototypeRoute,
   ApiGenerateRecommendationsRoute: ApiGenerateRecommendationsRoute,
+  AuthConfirmedRoute: AuthConfirmedRoute,
+  ApiAuthClaimTesterRoute: ApiAuthClaimTesterRoute,
+  ApiAuthExchangeRoute: ApiAuthExchangeRoute,
+  ApiAuthSessionRoute: ApiAuthSessionRoute,
+  ApiAuthSigninRoute: ApiAuthSigninRoute,
+  ApiAuthSignoutRoute: ApiAuthSignoutRoute,
+  ApiAuthSignupRoute: ApiAuthSignupRoute,
+  ApiAuthVerifyRoute: ApiAuthVerifyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

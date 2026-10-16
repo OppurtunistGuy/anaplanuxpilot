@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 
@@ -9,39 +9,15 @@ export interface ByokConfig {
   key: string;
 }
 
-const STORAGE_KEY = "uxc.byok";
-
 export const PROVIDERS: { id: ByokProvider; label: string; placeholder: string; prefix?: string; hint: string }[] = [
   { id: "openai", label: "OpenAI", placeholder: "sk-...", prefix: "sk-", hint: "Get a key at platform.openai.com" },
   { id: "gemini", label: "Google Gemini", placeholder: "AIza...", prefix: "AIza", hint: "Get a key at aistudio.google.com — free tier available" },
   { id: "grok", label: "xAI Grok", placeholder: "xai-...", prefix: "xai-", hint: "Get a key at console.x.ai" },
 ];
 
-export function useStoredApiKey(): [ByokConfig, (c: ByokConfig) => void] {
+export function useSessionApiKey(): [ByokConfig, (c: ByokConfig) => void] {
   const [config, setConfig] = useState<ByokConfig>({ provider: "openai", key: "" });
-  useEffect(() => {
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY);
-      if (raw) {
-        const parsed = JSON.parse(raw) as ByokConfig;
-        if (parsed && typeof parsed.key === "string") {
-          setConfig({ provider: parsed.provider ?? "openai", key: parsed.key });
-          return;
-        }
-      }
-      // migrate legacy openai-only key
-      const legacy = window.localStorage.getItem("uxc.openaiKey");
-      if (legacy) setConfig({ provider: "openai", key: legacy });
-    } catch {
-      /* ignore */
-    }
-  }, []);
-  const update = (c: ByokConfig) => {
-    setConfig(c);
-    if (c.key.trim()) window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ provider: c.provider, key: c.key.trim() }));
-    else window.localStorage.removeItem(STORAGE_KEY);
-  };
-  return [config, update];
+  return [config, setConfig];
 }
 
 export function ApiKeyField({ value, onChange }: { value: ByokConfig; onChange: (c: ByokConfig) => void }) {
@@ -102,8 +78,7 @@ export function ApiKeyField({ value, onChange }: { value: ByokConfig; onChange: 
           {!valid && <p className="text-xs text-destructive">{meta.label} keys start with "{meta.prefix}".</p>}
         </div>
         <p className="text-xs text-muted-foreground">
-          {meta.hint}. Bypasses shared limits; usage is billed to your own {meta.label} account under your plan. Saved
-          only in this browser and sent per request — never stored on our servers.
+          {meta.hint}. Usage is billed to your {meta.label} account. The key remains in page memory and is sent to the app server for forwarding; it is not saved in browser storage.
         </p>
       </div>
     </details>

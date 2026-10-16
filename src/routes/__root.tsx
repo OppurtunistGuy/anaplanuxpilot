@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { Header } from "../components/layout/Header";
 import { Footer } from "../components/layout/Footer";
+import { AuthProvider } from "../lib/auth-client";
 
 function NotFoundComponent() {
   return (
@@ -36,12 +37,13 @@ function NotFoundComponent() {
   );
 }
 
-function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
-  console.error(error);
+function ErrorComponent({ error, reset }: { error: unknown; reset: () => void }) {
+  const normalizedError = error instanceof Error ? error : new Error(String(error));
+  console.error(normalizedError);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
-  }, [error]);
+    reportLovableError(normalizedError, { boundary: "tanstack_root_error_component" });
+  }, [normalizedError]);
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background px-4">
@@ -121,14 +123,15 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-      <div className="flex min-h-screen flex-col bg-background">
-        <Header />
-        <main className="flex-1">
-          {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
-          <Outlet />
-        </main>
-        <Footer />
-      </div>
+      <AuthProvider>
+        <div className="flex min-h-screen flex-col bg-background">
+          <Header />
+          <main className="flex-1">
+            <Outlet />
+          </main>
+          <Footer />
+        </div>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

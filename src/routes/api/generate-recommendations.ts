@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { requireTester } from "@/lib/auth-server";
 
 type Provider = "openai" | "gemini" | "grok";
 
@@ -21,10 +22,10 @@ async function geminiChat(
     if (m) parts.push({ inlineData: { mimeType: m[1], data: m[2] } });
   }
   const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${encodeURIComponent(key)}`,
+    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
     {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: { "Content-Type": "application/json", "x-goog-api-key": key },
       body: JSON.stringify({
         systemInstruction: { parts: [{ text: "You output strict JSON only." }] },
         contents: [{ parts }],
@@ -61,14 +62,24 @@ export const Route = createFileRoute("/api/generate-recommendations")({
   server: {
     handlers: {
       POST: async ({ request }) => {
+        const access = await requireTester(request);
+        if (access instanceof Response) return access;
+        const length = Number(request.headers.get("content-length") ?? 0);
+        if (length > 9_000_000) return Response.json({ error: "Request is too large." }, { status: 413 });
         let body: ReqBody;
         try {
-          body = (await request.json()) as ReqBody;
+          const raw = await request.text();
+          if (new TextEncoder().encode(raw).byteLength > 9_000_000) return Response.json({ error: "Request is too large." }, { status: 413 });
+          body = JSON.parse(raw) as ReqBody;
         } catch {
           return new Response("Invalid JSON", { status: 400 });
         }
-        const prompt = (body.prompt ?? "").toString();
+        const prompt = (body.prompt ?? "").toString().slice(0, 10_000);
         if (!prompt.trim()) return new Response("Missing prompt", { status: 400 });
+        if (body.screenshotDataUrl && (body.screenshotDataUrl.length > 7_100_000 || !/^data:image\/(png|jpeg);base64,[A-Za-z0-9+/]+=*$/i.test(body.screenshotDataUrl))) {
+          return Response.json({ error: "Screenshot must be a PNG or JPEG under 5 MB." }, { status: 400 });
+        }
+        if (typeof body.apiKey === "string" && body.apiKey.length > 4096) return Response.json({ error: "Invalid provider key." }, { status: 400 });
 
         const userKey = typeof body.apiKey === "string" ? body.apiKey.trim() : "";
         const provider: Provider | null = userKey
@@ -81,7 +92,7 @@ export const Route = createFileRoute("/api/generate-recommendations")({
 
         if (userKey && provider === "gemini") {
           const r = await geminiChat(prompt, body.screenshotDataUrl, userKey);
-          if (!r.ok) return r;
+          if (!r.ok) return Response.json({ error: "Recommendations provider request failed." }, { status: r.status >= 500 ? 502 : r.status });
           content = ((await r.json()) as { content?: string }).content ?? "{}";
         } else {
           const key = userKey || process.env.LOVABLE_API_KEY;
@@ -123,8 +134,7 @@ export const Route = createFileRoute("/api/generate-recommendations")({
           });
 
           if (!upstream.ok) {
-            const text = await upstream.text().catch(() => "");
-            return new Response(text || "Upstream error", { status: upstream.status });
+            return Response.json({ error: "Recommendations provider request failed." }, { status: upstream.status >= 500 ? 502 : upstream.status });
           }
           const json = (await upstream.json()) as {
             choices?: Array<{ message?: { content?: string } }>;

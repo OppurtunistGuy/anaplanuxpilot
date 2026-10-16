@@ -14,6 +14,7 @@ import {
 } from "@/lib/submission-storage";
 import { exportReviewPdf } from "@/lib/pdf-report";
 import { Download, Trash2, ArrowRight } from "lucide-react";
+import { AuthGate } from "@/lib/auth-client";
 
 export const Route = createFileRoute("/results")({
   head: () => ({
@@ -24,7 +25,7 @@ export const Route = createFileRoute("/results")({
     ],
     links: [{ rel: "canonical", href: "/results" }],
   }),
-  component: ResultsPage,
+  component: () => <AuthGate><ResultsPage /></AuthGate>,
 });
 
 const COMPAT: Record<Compatibility, { label: string; cls: string }> = {
